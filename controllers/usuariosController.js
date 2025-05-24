@@ -1,5 +1,7 @@
 import Usuario from "../models/Usuario.js";
 import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
+
 
 export const home = (req, res) => {
     res.send(`<h1>Home de la API</h1>`)
@@ -47,7 +49,7 @@ export const getUsuarioById = async (req, res) => {
 export const CrearUsuario = async (req, res) => {  
 
     const { nombre, fechaNacimiento,telefono, email, password } = req.body;
-    if(!nombre || !edad || !email ||  !telefono || !fechaNacimiento|| !password){
+    if(!nombre || !email ||  !telefono || !fechaNacimiento|| !password){
         return res.status(400).json({error: "Faltan datos"})
     }
 
@@ -70,4 +72,45 @@ export const CrearUsuario = async (req, res) => {
     }
     
 }
- 
+
+export const login = async (req,res) =>{
+    const {email, password} = req.body;
+
+    if(!email || !password){
+        return res.status(400).json({ error: 'Faltan credenciales'})
+    }
+
+    try {
+
+        const usuario = await Usuario.findOne({email});
+
+        if(!usuario){
+            return res.status(404).json({ error: 'Usuario no encontrado'})
+        }
+
+        const match = await bcrypt.compare(password, usuario.password)
+
+        if(!match){
+            return res.status(401).json({ error: 'Password incorrecta'})
+        }
+
+
+        // JWT.SIGN
+        // Primer argumento, lo que vas a encriptar
+        // Segundo argumento, la llave para encriptar / desencriptar
+        // Tercer argumento, el tiempo que va a durar ese token
+        const datosEncriptados = { id: usuario._id, email: usuario.email, rol: 'admin'}
+        const JWT_KEY = process.env.JWT_SECRET
+        const token = jwt.sign(
+            datosEncriptados,
+            JWT_KEY,
+            { expiresIn: '1h'}
+        )
+
+        res.json({ accessToken: token})
+        
+    } catch (error) {
+        res.status(500).json({error: 'Error al hacer login'})
+    }
+}
+    
