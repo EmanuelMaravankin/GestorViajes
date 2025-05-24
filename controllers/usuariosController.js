@@ -31,6 +31,18 @@ export const getUsuariosSearch = async (req, res) => {
     }
 }
 
+export const eliminarUsuario = async (req, res) => {
+    try {
+        const usuarioEliminado = await Usuario.findByIdAndDelete(req.params.id);
+        if (!usuarioEliminado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        res.json({ mensaje: 'Usuario eliminado correctamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar el usuario' });
+    }
+}
+
 export const getUsuarioById = async (req, res) => {
 
     try {
@@ -71,6 +83,26 @@ export const CrearUsuario = async (req, res) => {
         res.status(500).json({error: "Error al crear Usuario"})
     }
     
+}
+
+export const actualizarUsuario = async (req, res) => {
+    const { nombre, email, telefono, fechaNacimiento } = req.body;
+
+    try {
+        const usuarioActualizado = await Usuario.findByIdAndUpdate(
+            req.params.id,
+            { nombre, email, telefono, fechaNacimiento },
+            { new: true, runValidators: true }
+        );
+
+        if (!usuarioActualizado) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.json(usuarioActualizado);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar el usuario' });
+    }
 }
 
 export const login = async (req,res) =>{
