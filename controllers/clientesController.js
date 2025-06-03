@@ -64,6 +64,29 @@ export const CrearCliente = async (req, res) => {
     if(!nombre || !email ||  !telefono || !fechaNacimiento|| !password || !pasaporte ){
         return res.status(400).json({error: "Faltan datos"})
     }
+    if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
+        return res.status(400).json({error: "Nombre invalido"});
+    }
+
+    if(isNaN(Date.parse(fechaNacimiento))){
+        return res.status(400).json({ error: "Email invalido"})
+    }
+
+    if(typeof password !== "string" || password.length < 8){
+        return res.status(400).json({error: "La contraseña debe tener al menos 8 caracteres"})
+    }
+
+    if(typeof pasaporte !== "string" || pasaporte.trim() === ""){
+        return res.status(400).json({error: "Pasaporte invalido"})
+    }
+
+    if (!/^\d{10}$/.test(telefono)) {
+  return res.status(400).json({ error: "Teléfono inválido. Debe contener solo 10 dígitos numéricos" });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  return res.status(400).json({ error: "Email inválido" });
+}
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -95,6 +118,26 @@ export const actualizarCliente = async (req, res) => {
             { nombre, email, telefono, fechaNacimiento, pasaporte },
             { new: true, runValidators: true }
         );
+
+    if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
+    return res.status(400).json({error: "Nombre invalido"});
+    }
+
+    if(isNaN(Date.parse(fechaNacimiento))){
+        return res.status(400).json({ error: "Email invalido"})
+    }
+
+    if(typeof pasaporte !== "string" || pasaporte.trim() === ""){
+        return res.status(400).json({error: "Pasaporte invalido"})
+    }
+
+    if (!/^\d{10}$/.test(telefono)) {
+  return res.status(400).json({ error: "Teléfono inválido. Debe contener solo 10 dígitos numéricos" });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  return res.status(400).json({ error: "Email inválido" });
+}
 
         if (!clienteActualizado) {
             return res.status(404).json({ error: 'Cliente no encontrado' });
