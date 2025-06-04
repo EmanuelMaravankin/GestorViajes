@@ -69,7 +69,7 @@ export const CrearCliente = async (req, res) => {
     }
 
     if(isNaN(Date.parse(fechaNacimiento))){
-        return res.status(400).json({ error: "Email invalido"})
+        return res.status(400).json({ error: "Fecha invalida"})
     }
 
     if(typeof password !== "string" || password.length < 8){
@@ -124,7 +124,7 @@ export const actualizarCliente = async (req, res) => {
     }
 
     if(isNaN(Date.parse(fechaNacimiento))){
-        return res.status(400).json({ error: "Email invalido"})
+        return res.status(400).json({ error: "Fecha invalida"})
     }
 
     if(typeof pasaporte !== "string" || pasaporte.trim() === ""){
