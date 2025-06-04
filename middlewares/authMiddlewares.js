@@ -1,3 +1,4 @@
+n
 import jwt from "jsonwebtoken"
 
 export const protegerRuta = (req, res, next ) =>{
@@ -21,7 +22,7 @@ export const protegerRuta = (req, res, next ) =>{
 
         console.log("decodificado: ", decodificado);
 
-        req.usuario = decodificado;
+        req.cliente = decodificado;
        
         next()
 
@@ -53,9 +54,9 @@ export const protegerRutaAdmin = (req, res, next) => {
         console.log("decodificado: ", decodificado);
 
 
-        req.usuario = decodificado;
+        req.cliente = decodificado;
 
-        if(req.usuario.rol !== 'admin'){
+        if(req.cliente.rol !== 'admin'){
             return res.status(401).json({ error: 'No eres admin'})
 
         }
