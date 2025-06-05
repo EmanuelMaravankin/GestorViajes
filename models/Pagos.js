@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const pagosSchema = mongoose.Schema({
-    reservaID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Reservas' },
-    clienteID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Usuario' },
+    reservaID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Reserva' },
+    clienteID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Cliente' },
     monto: { type: Number, required: true },
     fechaPago: { type: Date, required: true },
     medioPago: { 
