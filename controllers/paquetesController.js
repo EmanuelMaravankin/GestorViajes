@@ -25,17 +25,29 @@ export const getPaqueteById = async (req, res) => {
 }
 
 export const getPaquetesSearch = async (req, res) => {
-    const { paquete: nombre } = req.query;
 
-    try {
-        const paquetes = await Paquete.find({
-            nombre: { $regex: `^${nombre}`, $options: 'i' }
-        });
-        res.json(paquetes);
-    } catch (error) {
-        res.status(500).json({ error: "Error al obtener paquetes" });
-    }
-};
+  const { paquete } = req.query;
+
+  if (!paquete) {
+    return res.status(400).json({ error: "Falta el parámetro 'agente'" });
+  }
+
+  const escapeRegex = (text) => {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+  };
+
+    const regex = new RegExp(`^${escapeRegex(paquete)}`, 'i');
+
+  try {
+
+    const paquetes = await Paquete.find({
+      nombre: { $regex: regex }
+    })
+    res.json(paquetes)
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener paquetes" })
+  }
+}
 
 export const crearPaquete = async (req, res) => {
     const { nombre, vueloID, hotelID, excursionesID, seguroID, ubicacionID, precio, duracion } = req.body;
