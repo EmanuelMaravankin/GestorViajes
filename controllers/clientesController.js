@@ -104,6 +104,9 @@ export const CrearCliente = async (req, res) => {
         const nuevoCliente = await Cliente.create(cliente)
         res.status(201).json(nuevoCliente)
     } catch (error) {
+        if(error.code === 11000){
+            return res.status(400).json({error: "El email o telefono ya esta registrado"})
+        }
         res.status(500).json({error: "Error al crear Cliente"})
     }
     
@@ -112,14 +115,7 @@ export const CrearCliente = async (req, res) => {
 export const actualizarCliente = async (req, res) => {
     const { nombre, email, telefono, fechaNacimiento, pasaporte } = req.body;
 
-    try {
-        const clienteActualizado = await Cliente.findByIdAndUpdate(
-            req.params.id,
-            { nombre, email, telefono, fechaNacimiento, pasaporte },
-            { new: true, runValidators: true }
-        );
-
-    if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
+   if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
     return res.status(400).json({error: "Nombre invalido"});
     }
 
@@ -138,13 +134,24 @@ export const actualizarCliente = async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
   return res.status(400).json({ error: "Email inválido" });
 }
-
+     
+   
+    try {
+        const clienteActualizado = await Cliente.findByIdAndUpdate(
+            req.params.id,
+            { nombre, email, telefono, fechaNacimiento, pasaporte },
+            { new: true, runValidators: true }
+        );
+   
         if (!clienteActualizado) {
             return res.status(404).json({ error: 'Cliente no encontrado' });
         }
 
         res.json(clienteActualizado);
     } catch (error) {
+        if(error.code === 11000){
+            return res.status(400).json({error: "El email o telefono ya esta registrado"})
+        }
         res.status(500).json({ error: 'Error al actualizar el cliente' });
     }
 }

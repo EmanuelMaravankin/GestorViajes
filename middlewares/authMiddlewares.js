@@ -1,4 +1,3 @@
-n
 import jwt from "jsonwebtoken"
 
 export const protegerRuta = (req, res, next ) =>{
