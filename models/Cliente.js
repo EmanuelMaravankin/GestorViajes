@@ -7,6 +7,7 @@ const clienteSchema = mongoose.Schema({
     email: { type: String, required: true, unique: true},
     pasaporte: { type: String, required: true },
     password: { type: String, required: true},
+    profile_pic: { type: String},
     historialReservas: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reserva' }] }, { timestamps: true})
 
 export default mongoose.model("Cliente", clienteSchema)

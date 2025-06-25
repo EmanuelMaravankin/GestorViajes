@@ -1,6 +1,7 @@
 import Cliente from "../models/Cliente.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import supabase from "../config/supabase.js";
 
 
 export const home = (req, res) => {
@@ -197,3 +198,51 @@ export const login = async (req,res) =>{
     }
 }
     
+export const actualizarProfilePic = async (req,res) =>{
+    const {cliente} = req;
+    const file = req.file
+
+    console.log("req.file: ", req.body);
+    if(!file){
+        return res.status(400).json({error: "No se proporciono ninguna imagen"})
+    }
+
+   const fileName = `${Date.now()}_${file.originalname}`
+    const filePath = `clientes/${cliente.id}/profilePic/${fileName}`
+
+    try {
+        const { data, error } = await supabase.storage
+                                .from(process.env.SUPABASE_BUCKET)
+                                .upload(filePath, file.buffer, {
+                                    contentType: file.mimetype,
+                                    upsert: true
+                                })
+
+        if(error){
+            return res.status(500).json({
+                error: 'Error al subir la imagen a Supabase',
+                errorMensaje: error
+            })
+        }
+
+        const {data: publicUrlData } = supabase.storage.from(process.env.SUPABASE_BUCKET).getPublicUrl(filePath) 
+        
+        const profilePicUrl = publicUrlData.publicUrl;
+
+        const clienteActualizado = await Cliente.findByIdAndUpdate(
+            cliente.id,
+            {profile_pic: profilePicUrl},
+            {new: true}
+        );
+
+        res.json({
+            msg: 'Imagen actualizada correctamente',
+            cliente: clienteActualizado
+        })
+        
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al actualizar la imagen'})
+    }
+}
