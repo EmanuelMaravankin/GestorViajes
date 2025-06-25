@@ -28,7 +28,7 @@ router.put('/api/clientes/:id',  actualizarCliente)
 
 
 router.post('/api/clientes',protegerRuta,  CrearCliente)
-router.put('/api/clientes/', protegerRuta,allowUpload.single('imagen'), actualizarProfilePic)
+router.put('/api/clientes/', protegerRuta, allowUpload.single('imagen'), actualizarProfilePic)
 
 
 export default router

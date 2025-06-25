@@ -1,6 +1,6 @@
 import Reserva from "../models/Reserva.js";
 import Cliente from "../models/Cliente.js";
-//import Paquete from "../models/Paquete.js";
+import Paquete from "../models/paquete.js";
 import mongoose from "mongoose";
 
 
