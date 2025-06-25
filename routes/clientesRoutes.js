@@ -7,9 +7,12 @@ import {
     getClienteSearch,
     login,
     eliminarCliente,
-    actualizarCliente
+    actualizarCliente,
+    actualizarProfilePic
 } from '../controllers/clientesController.js'
 import { protegerRuta } from '../middlewares/authMiddlewares.js';
+import { allowUpload } from '../middlewares/uploadMiddlewares.js';
+
 
 const router = express.Router()
 
@@ -24,6 +27,8 @@ router.delete('/api/clientes/:id', eliminarCliente)
 router.put('/api/clientes/:id',  actualizarCliente)
 
 
-router.post('/api/clientes', protegerRuta, CrearCliente)
+router.post('/api/clientes',protegerRuta,  CrearCliente)
+router.put('/api/clientes/', protegerRuta,allowUpload.single('imagen'), actualizarProfilePic)
+
 
 export default router

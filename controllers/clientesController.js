@@ -1,6 +1,7 @@
 import Cliente from "../models/Cliente.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import supabase from "../config/supabase.js";
 
 
 export const home = (req, res) => {
@@ -104,6 +105,9 @@ export const CrearCliente = async (req, res) => {
         const nuevoCliente = await Cliente.create(cliente)
         res.status(201).json(nuevoCliente)
     } catch (error) {
+        if(error.code === 11000){
+            return res.status(400).json({error: "El email o telefono ya esta registrado"})
+        }
         res.status(500).json({error: "Error al crear Cliente"})
     }
     
@@ -112,14 +116,7 @@ export const CrearCliente = async (req, res) => {
 export const actualizarCliente = async (req, res) => {
     const { nombre, email, telefono, fechaNacimiento, pasaporte } = req.body;
 
-    try {
-        const clienteActualizado = await Cliente.findByIdAndUpdate(
-            req.params.id,
-            { nombre, email, telefono, fechaNacimiento, pasaporte },
-            { new: true, runValidators: true }
-        );
-
-    if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
+   if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
     return res.status(400).json({error: "Nombre invalido"});
     }
 
@@ -138,13 +135,24 @@ export const actualizarCliente = async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
   return res.status(400).json({ error: "Email inválido" });
 }
-
+     
+   
+    try {
+        const clienteActualizado = await Cliente.findByIdAndUpdate(
+            req.params.id,
+            { nombre, email, telefono, fechaNacimiento, pasaporte },
+            { new: true, runValidators: true }
+        );
+   
         if (!clienteActualizado) {
             return res.status(404).json({ error: 'Cliente no encontrado' });
         }
 
         res.json(clienteActualizado);
     } catch (error) {
+        if(error.code === 11000){
+            return res.status(400).json({error: "El email o telefono ya esta registrado"})
+        }
         res.status(500).json({ error: 'Error al actualizar el cliente' });
     }
 }
@@ -190,3 +198,51 @@ export const login = async (req,res) =>{
     }
 }
     
+export const actualizarProfilePic = async (req,res) =>{
+    const {cliente} = req;
+    const file = req.file
+
+    console.log("req.file: ", req.body);
+    if(!file){
+        return res.status(400).json({error: "No se proporciono ninguna imagen"})
+    }
+
+   const fileName = `${Date.now()}_${file.originalname}`
+    const filePath = `clientes/${cliente.id}/profilePic/${fileName}`
+
+    try {
+        const { data, error } = await supabase.storage
+                                .from(process.env.SUPABASE_BUCKET)
+                                .upload(filePath, file.buffer, {
+                                    contentType: file.mimetype,
+                                    upsert: true
+                                })
+
+        if(error){
+            return res.status(500).json({
+                error: 'Error al subir la imagen a Supabase',
+                errorMensaje: error
+            })
+        }
+
+        const {data: publicUrlData } = supabase.storage.from(process.env.SUPABASE_BUCKET).getPublicUrl(filePath) 
+        
+        const profilePicUrl = publicUrlData.publicUrl;
+
+        const clienteActualizado = await Cliente.findByIdAndUpdate(
+            cliente.id,
+            {profile_pic: profilePicUrl},
+            {new: true}
+        );
+
+        res.json({
+            msg: 'Imagen actualizada correctamente',
+            cliente: clienteActualizado
+        })
+        
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: 'Error al actualizar la imagen'})
+    }
+}
