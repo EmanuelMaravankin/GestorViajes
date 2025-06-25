@@ -12,7 +12,7 @@ export const getAgentes = async (req, res) => {
 export const getAgenteById = async (req, res) => {
 
   try {
-    const agente = await Agentes.findById(req.params.id)
+    const agente = await Agente.findById(req.params.id)
     if (agente) {
       res.json(agente)
     } else {

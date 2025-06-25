@@ -14,7 +14,7 @@ const router = express.Router()
 router.get('/api/agentes', getAgentes)
 router.get('/api/agentes/:id', getAgenteById)
 router.get('/api/agentes/usuarios', getAgentesSearch)
-router.post('/api/agentes/:id', protegerRuta, crearAgente)
+router.post('/api/agentes', protegerRuta, crearAgente)
 router.delete('/api/agentes/:id', protegerRuta, eliminarAgente)
 router.put('/api/agentes/:id', protegerRuta, actualizarAgente)
 

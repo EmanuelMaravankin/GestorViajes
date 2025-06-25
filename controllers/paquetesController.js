@@ -12,7 +12,7 @@ export const getPaquetes = async (req, res) => {
 export const getPaqueteById = async (req, res) => {
 
     try {
-        const paquete = await Paquetes.findById(req.params.id)
+        const paquete = await Paquete.findById(req.params.id)
         if(paquete){
             res.json(paquete)
         }else{
@@ -29,7 +29,7 @@ export const getPaquetesSearch = async (req, res) => {
   const { paquete } = req.query;
 
   if (!paquete) {
-    return res.status(400).json({ error: "Falta el parámetro 'agente'" });
+    return res.status(400).json({ error: "Falta el parámetro 'paquete'" });
   }
 
   const escapeRegex = (text) => {

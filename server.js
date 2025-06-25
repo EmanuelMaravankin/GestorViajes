@@ -8,6 +8,8 @@ import hotelesRouter from './routes/hotelesRoutes.js'
 import excursionesRouter from './routes/excursionesRoutes.js'
 import vuelosRouter from './routes/vuelosRoutes.js'
 import pagosRouter from './routes/pagosRoutes.js'
+import paquetesRouter from './routes/paquetesRoutes.js'
+import agentesRouter from './routes/agentesRoutes.js'
 import conectarDB from './config/db.js';
 
 dotenv.config()
@@ -30,6 +32,8 @@ app.use("/", hotelesRouter) // Rutas para hoteles
 app.use("/", excursionesRouter) // Rutas para excursiones
 app.use("/", vuelosRouter) // Rutas para vuelos
 app.use("/", pagosRouter) // Rutas para pagos
+app.use("/", paquetesRouter) // Rutas para paquetes
+app.use("/", agentesRouter) // Rutas para agentes
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`)
