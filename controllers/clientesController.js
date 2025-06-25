@@ -113,50 +113,6 @@ export const CrearCliente = async (req, res) => {
     
 }
 
-export const actualizarCliente = async (req, res) => {
-    const { nombre, email, telefono, fechaNacimiento, pasaporte } = req.body;
-
-   if(typeof nombre !== "string" || nombre.trim() === "" || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre) ){
-    return res.status(400).json({error: "Nombre invalido"});
-    }
-
-    if(isNaN(Date.parse(fechaNacimiento))){
-        return res.status(400).json({ error: "Fecha invalida"})
-    }
-
-    if(typeof pasaporte !== "string" || pasaporte.trim() === ""){
-        return res.status(400).json({error: "Pasaporte invalido"})
-    }
-
-    if (!/^\d{10}$/.test(telefono)) {
-  return res.status(400).json({ error: "Teléfono inválido. Debe contener solo 10 dígitos numéricos" });
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-  return res.status(400).json({ error: "Email inválido" });
-}
-     
-   
-    try {
-        const clienteActualizado = await Cliente.findByIdAndUpdate(
-            req.params.id,
-            { nombre, email, telefono, fechaNacimiento, pasaporte },
-            { new: true, runValidators: true }
-        );
-   
-        if (!clienteActualizado) {
-            return res.status(404).json({ error: 'Cliente no encontrado' });
-        }
-
-        res.json(clienteActualizado);
-    } catch (error) {
-        if(error.code === 11000){
-            return res.status(400).json({error: "El email o telefono ya esta registrado"})
-        }
-        res.status(500).json({ error: 'Error al actualizar el cliente' });
-    }
-}
-
 export const login = async (req,res) =>{
     const {email, password} = req.body;
 
@@ -198,16 +154,15 @@ export const login = async (req,res) =>{
     }
 }
     
-export const actualizarProfilePic = async (req,res) =>{
-    const {cliente} = req;
-    const file = req.file
-
-    console.log("req.file: ", req.body);
+export const actualizarProfilePic = async (req, res) => {
+    const { cliente } = req;
+    const file = req.file;
+    
     if(!file){
-        return res.status(400).json({error: "No se proporciono ninguna imagen"})
-    }
+        return res.status(400).json({ error: 'No se proporciono ninguna imagen'})
+    }  
 
-   const fileName = `${Date.now()}_${file.originalname}`
+    const fileName = `${Date.now()}_${file.originalname}`
     const filePath = `clientes/${cliente.id}/profilePic/${fileName}`
 
     try {
@@ -246,3 +201,71 @@ export const actualizarProfilePic = async (req,res) =>{
         res.status(500).json({ error: 'Error al actualizar la imagen'})
     }
 }
+
+export const actualizarCliente = async (req, res) => {
+  const { nombre, email, telefono, fechaNacimiento, pasaporte } = req.body;
+  const updateFields = {};
+
+  if (nombre !== undefined) {
+    if (
+      typeof nombre !== "string" ||
+      nombre.trim() === "" ||
+      !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)
+    ) {
+      return res.status(400).json({ error: "Nombre invalido" });
+    }
+    updateFields.nombre = nombre;
+  }
+
+  if (fechaNacimiento !== undefined) {
+    if (isNaN(Date.parse(fechaNacimiento))) {
+      return res.status(400).json({ error: "Fecha invalida" });
+    }
+    updateFields.fechaNacimiento = fechaNacimiento;
+  }
+
+  if (pasaporte !== undefined) {
+    if (typeof pasaporte !== "string" || pasaporte.trim() === "") {
+      return res.status(400).json({ error: "Pasaporte invalido" });
+    }
+    updateFields.pasaporte = pasaporte;
+  }
+
+  if (telefono !== undefined) {
+    if (!/^\d{10}$/.test(telefono)) {
+      return res.status(400).json({
+        error: "Teléfono inválido. Debe contener solo 10 dígitos numéricos",
+      });
+    }
+    updateFields.telefono = telefono;
+  }
+
+  if (email !== undefined) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Email inválido" });
+    }
+    updateFields.email = email;
+  }
+
+  try {
+    const clienteActualizado = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      updateFields,
+      { new: true, runValidators: true }
+    );
+
+    if (!clienteActualizado) {
+      return res.status(404).json({ error: "Cliente no encontrado" });
+    }
+
+    res.json(clienteActualizado);
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        error: "El email o teléfono ya está registrado",
+      });
+    }
+    console.error(error);
+    res.status(500).json({ error: "Error al actualizar el cliente" });
+  }
+};
